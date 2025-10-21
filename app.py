@@ -96,7 +96,7 @@ with st.sidebar:
     st.markdown(
         """
         <div style="color:black;">
-            💡 <i>Unggah gambar Alpaca atau objek lain untuk dideteksi atau diklasifikasikan!</i>
+            💡 <i>Unggah gambar Alpaca atau NonAlpaca untuk dideteksi atau diklasifikasikan!</i>
         </div>
         """,
         unsafe_allow_html=True
@@ -148,6 +148,6 @@ if uploaded_file is not None:
 st.markdown("""
 <hr>
 <div style="text-align:center; font-size:14px; color:gray;">
-Dibuat dengan 💖 oleh <b>Nela & Ayi</b> | Alpaca Vision Project 🦙
+Dibuat dengan 💖 oleh <b>@naylarhmdn</b> | Alpaca Vision Project 🦙
 </div>
 """, unsafe_allow_html=True)

@@ -148,6 +148,6 @@ if uploaded_file is not None:
 st.markdown("""
 <hr>
 <div style="text-align:center; font-size:14px; color:gray;">
-Dibuat dengan 💖 oleh <b>@naylarhmdn</b> | Alpaca Vision Project 🦙
+by<b>@naylarhmdn</b> | Alpaca Vision Project 🦙
 </div>
 """, unsafe_allow_html=True)

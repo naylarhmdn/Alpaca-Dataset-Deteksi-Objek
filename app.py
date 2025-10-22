@@ -11,61 +11,82 @@ import cv2
 # ==========================
 st.set_page_config(page_title="🦙 Alpaca Vision", page_icon="🧠", layout="wide")
 
-# Custom CSS agar tampilannya lembut dan sidebar teks berwarna hitam
+# CSS Kustom dengan gaya pastel lembut & tampilan modern
 st.markdown("""
     <style>
-    /* Background utama dengan gradasi lembut */
+    /* Background utama */
     .main {
-        background: linear-gradient(135deg, #FBEAFF 0%, #E3FDFD 100%);
-        padding: 1rem 2rem;
+        background: linear-gradient(145deg, #F8E8FF 0%, #E3FDFD 100%);
+        padding: 2rem;
+        font-family: 'Poppins', sans-serif;
     }
 
     /* Judul utama */
     h1 {
-        color: #7A1CAC;
         text-align: center;
-        font-family: 'Poppins', sans-serif;
-        font-weight: 700;
+        font-weight: 800;
+        font-size: 2.5rem !important;
+        color: #6A0DAD;
+        text-shadow: 2px 2px 10px rgba(106, 13, 173, 0.15);
+        margin-bottom: 1rem;
     }
 
-    /* Sidebar: warna dasar & teks hitam */
+    /* Sidebar */
     section[data-testid="stSidebar"] {
-        background-color: #F6EFFF;
-        color: black !important;
+        background: #F5E6FF;
+        color: #000;
+        border-right: 2px solid rgba(122, 28, 172, 0.1);
+        box-shadow: 2px 0 15px rgba(122, 28, 172, 0.1);
     }
 
-    /* Kotak hasil */
-    .stImage {
-        border-radius: 15px;
-        box-shadow: 0px 4px 10px rgba(122, 28, 172, 0.2);
+    /* Sidebar header */
+    [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h3 {
+        color: #5B0080;
+        font-weight: 700;
     }
 
     /* Tombol */
     div.stButton > button {
-        background-color: #7A1CAC;
+        background: linear-gradient(90deg, #8E2DE2 0%, #4A00E0 100%);
         color: white;
-        border-radius: 10px;
-        height: 3em;
-        width: 100%;
-        font-weight: bold;
         border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: 600;
+        transition: all 0.3s ease-in-out;
+        box-shadow: 0px 4px 10px rgba(138, 43, 226, 0.3);
     }
 
     div.stButton > button:hover {
-        background-color: #9C27B0;
-        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0px 6px 15px rgba(138, 43, 226, 0.5);
+    }
+
+    /* Gambar hasil */
+    .stImage {
+        border-radius: 15px !important;
+        box-shadow: 0px 6px 18px rgba(106, 13, 173, 0.15);
     }
 
     /* Kotak hasil prediksi */
     .result-box {
-        background-color: #ffffffcc;
-        padding: 1rem;
-        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-top: 1rem;
+        box-shadow: 0 4px 20px rgba(100, 0, 150, 0.1);
         text-align: center;
+        color: #4B0082;
         font-size: 18px;
         font-weight: 600;
-        color: #4B0082;
-        box-shadow: 0 0 10px rgba(100, 0, 150, 0.1);
+        animation: fadeIn 1s ease-in-out;
+    }
+
+    /* Efek animasi fade */
+    @keyframes fadeIn {
+        from {opacity: 0; transform: translateY(10px);}
+        to {opacity: 1; transform: translateY(0);}
     }
 
     /* Footer */
@@ -74,55 +95,55 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================
-# Load Models
+# LOAD MODEL
 # ==========================
 @st.cache_resource
 def load_models():
-    yolo_model = YOLO("model/best.pt")  # Model deteksi objek
-    classifier = tf.keras.models.load_model("model/classifier_model.h5")  # Model klasifikasi
+    yolo_model = YOLO("model/best.pt")
+    classifier = tf.keras.models.load_model("model/classifier_model.h5")
     return yolo_model, classifier
 
 yolo_model, classifier = load_models()
 
 # ==========================
-# UI
+# UI HEADER
 # ==========================
-st.title("🦙 Alpaca & Non-Alpaca Vision Dashboard")
+st.title("🦙 Alpaca Vision Dashboard")
 
 with st.sidebar:
     st.header("✨ Pengaturan Mode")
-    menu = st.selectbox("Pilih Mode:", ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"])
+    menu = st.selectbox("🎯 Pilih Mode:", ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"])
     st.markdown("---")
-    st.markdown(
-        """
-        <div style="color:black;">
-            💡 <i>Unggah gambar Alpaca atau NonAlpaca untuk dideteksi atau diklasifikasikan!</i>
+    st.markdown("""
+        <div style="color:black; font-size:15px;">
+            💡 <i>Unggah gambar Alpaca atau Non-Alpaca untuk dideteksi atau diklasifikasikan!</i>
         </div>
-        """,
-        unsafe_allow_html=True
-    )
+    """, unsafe_allow_html=True)
 
-uploaded_file = st.file_uploader("Klik! Unggah Gambar Disini", type=["jpg", "jpeg", "png"])
+# ==========================
+# MAIN CONTENT
+# ==========================
+uploaded_file = st.file_uploader("📤 Unggah Gambar di Sini", type=["jpg", "jpeg", "png"])
 
-if uploaded_file is not None:
+if uploaded_file:
     img = Image.open(uploaded_file)
     col1, col2 = st.columns(2)
 
     with col1:
-        st.subheader("Gambar yang Diupload")
+        st.subheader("📸 Gambar yang Diupload")
         st.image(img, use_container_width=True)
 
     with col2:
         if menu == "Deteksi Objek (YOLO)":
-            st.subheader("Hasil Deteksi Objek")
+            st.subheader("🔍 Hasil Deteksi Objek")
             with st.spinner("Sedang mendeteksi objek... ⏳"):
                 results = yolo_model(img)
                 result_img = results[0].plot()
-            st.image(result_img, caption="Output Deteksi", use_container_width=True)
+            st.image(result_img, caption="Output Deteksi YOLO", use_container_width=True)
 
         elif menu == "Klasifikasi Gambar":
-            st.subheader("🔎 Hasil Klasifikasi")
-            with st.spinner("Sedang menganalisis gambar... 🧠"):
+            st.subheader("🧠 Hasil Klasifikasi")
+            with st.spinner("Sedang menganalisis gambar..."):
                 img_resized = img.resize((224, 224))
                 img_array = image.img_to_array(img_resized)
                 img_array = np.expand_dims(img_array, axis=0)
@@ -132,9 +153,7 @@ if uploaded_file is not None:
                 class_index = np.argmax(prediction)
                 probability = np.max(prediction)
 
-            # Label sesuai modelmu
             labels = ["Non-Alpaca 🐑", "Alpaca 🦙"]
-
             st.markdown(f"""
             <div class="result-box">
                 <p>📊 <b>Prediksi:</b> {labels[class_index]}</p>
@@ -143,11 +162,11 @@ if uploaded_file is not None:
             """, unsafe_allow_html=True)
 
 # ==========================
-# Footer
+# FOOTER
 # ==========================
 st.markdown("""
-<hr>
+<hr style="margin-top:3rem;">
 <div style="text-align:center; font-size:14px; color:gray;">
-by <b>@naylarhmdn</b> | Alpaca Vision Project 🦙
+    by <b>@naylarhmdn</b> | <i>Alpaca Vision Project 🦙</i>
 </div>
 """, unsafe_allow_html=True)

@@ -1,8 +1,7 @@
 streamlit
-tensorflow
 ultralytics
+torch
 pillow
 opencv-python-headless
-base64
-PIL
 numpy
+tensorflow

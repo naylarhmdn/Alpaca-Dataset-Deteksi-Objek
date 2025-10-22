@@ -109,12 +109,12 @@ if uploaded_file is not None:
     col1, col2 = st.columns(2)
 
     with col1:
-        st.subheader("📸 Gambar yang Diupload")
+        st.subheader("Gambar yang Diupload")
         st.image(img, use_container_width=True)
 
     with col2:
         if menu == "Deteksi Objek (YOLO)":
-            st.subheader("🎯 Hasil Deteksi Objek")
+            st.subheader("Hasil Deteksi Objek")
             with st.spinner("Sedang mendeteksi objek... ⏳"):
                 results = yolo_model(img)
                 result_img = results[0].plot()

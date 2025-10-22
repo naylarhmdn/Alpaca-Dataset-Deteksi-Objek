@@ -4,95 +4,89 @@ import tensorflow as tf
 from tensorflow.keras.preprocessing import image
 import numpy as np
 from PIL import Image
-import cv2
+import base64
 
 # ==========================
-# CONFIG & STYLE
+# CONFIG
 # ==========================
 st.set_page_config(page_title="🦙 Alpaca Vision", page_icon="🧠", layout="wide")
 
-# CSS Kustom dengan gaya pastel lembut & tampilan modern
-st.markdown("""
-    <style>
-    /* Background utama */
-    .main {
-        background: linear-gradient(145deg, #F8E8FF 0%, #E3FDFD 100%);
-        padding: 2rem;
-        font-family: 'Poppins', sans-serif;
-    }
+# --- Fungsi untuk background ---
+def add_bg_from_local(image_file):
+    with open(image_file, "rb") as file:
+        encoded_string = base64.b64encode(file.read()).decode()
+    bg_image = f"""
+        <style>
+        .main {{
+            background-image: url("data:image/png;base64,{encoded_string}");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            font-family: 'Poppins', sans-serif;
+        }}
 
-    /* Judul utama */
-    h1 {
-        text-align: center;
-        font-weight: 800;
-        font-size: 2.5rem !important;
-        color: #6A0DAD;
-        text-shadow: 2px 2px 10px rgba(106, 13, 173, 0.15);
-        margin-bottom: 1rem;
-    }
+        /* Lapisan transparan lembut */
+        .main::before {{
+            content: "";
+            position: absolute;
+            top: 0; left: 0;
+            right: 0; bottom: 0;
+            background: rgba(255, 255, 255, 0.55);
+            z-index: -1;
+        }}
 
-    /* Sidebar */
-    section[data-testid="stSidebar"] {
-        background: #F5E6FF;
-        color: #000;
-        border-right: 2px solid rgba(122, 28, 172, 0.1);
-        box-shadow: 2px 0 15px rgba(122, 28, 172, 0.1);
-    }
+        h1 {{
+            text-align: center;
+            color: #4A0072;
+            font-weight: 800;
+            text-shadow: 1px 1px 5px rgba(255,255,255,0.8);
+        }}
 
-    /* Sidebar header */
-    [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h3 {
-        color: #5B0080;
-        font-weight: 700;
-    }
+        /* Sidebar */
+        section[data-testid="stSidebar"] {{
+            background-color: white !important;
+            color: #222 !important;
+            border-right: 1.5px solid rgba(0,0,0,0.1);
+        }}
 
-    /* Tombol */
-    div.stButton > button {
-        background: linear-gradient(90deg, #8E2DE2 0%, #4A00E0 100%);
-        color: white;
-        border: none;
-        border-radius: 10px;
-        font-size: 1rem;
-        font-weight: 600;
-        transition: all 0.3s ease-in-out;
-        box-shadow: 0px 4px 10px rgba(138, 43, 226, 0.3);
-    }
+        /* Tombol */
+        div.stButton > button {{
+            background: linear-gradient(90deg, #8E2DE2 0%, #4A00E0 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: 0.3s;
+            box-shadow: 0px 4px 10px rgba(0,0,0,0.25);
+        }}
 
-    div.stButton > button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0px 6px 15px rgba(138, 43, 226, 0.5);
-    }
+        div.stButton > button:hover {{
+            background: linear-gradient(90deg, #9B4DFF 0%, #512DA8 100%);
+            transform: translateY(-2px);
+        }}
 
-    /* Gambar hasil */
-    .stImage {
-        border-radius: 15px !important;
-        box-shadow: 0px 6px 18px rgba(106, 13, 173, 0.15);
-    }
+        .result-box {{
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            box-shadow: 0 4px 20px rgba(100, 0, 150, 0.15);
+            text-align: center;
+            color: #4B0082;
+            font-size: 18px;
+            font-weight: 600;
+        }}
 
-    /* Kotak hasil prediksi */
-    .result-box {
-        background: rgba(255, 255, 255, 0.7);
-        backdrop-filter: blur(10px);
-        border-radius: 15px;
-        padding: 1.5rem;
-        margin-top: 1rem;
-        box-shadow: 0 4px 20px rgba(100, 0, 150, 0.1);
-        text-align: center;
-        color: #4B0082;
-        font-size: 18px;
-        font-weight: 600;
-        animation: fadeIn 1s ease-in-out;
-    }
+        footer {{visibility: hidden;}}
+        </style>
+    """
+    st.markdown(bg_image, unsafe_allow_html=True)
 
-    /* Efek animasi fade */
-    @keyframes fadeIn {
-        from {opacity: 0; transform: translateY(10px);}
-        to {opacity: 1; transform: translateY(0);}
-    }
-
-    /* Footer */
-    footer {visibility: hidden;}
-    </style>
-""", unsafe_allow_html=True)
+# Ganti path gambar sesuai nama file kamu
+add_bg_from_local("f6391d84-1c14-43f3-8d53-44c8685754d5.png")
 
 # ==========================
 # LOAD MODEL
@@ -114,10 +108,33 @@ with st.sidebar:
     st.header("✨ Pengaturan Mode")
     menu = st.selectbox("🎯 Pilih Mode:", ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"])
     st.markdown("---")
+
     st.markdown("""
         <div style="color:black; font-size:15px;">
             💡 <i>Unggah gambar Alpaca atau Non-Alpaca untuk dideteksi atau diklasifikasikan!</i>
         </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("---")
+    show_info = st.button("📘 Tentang Alpaca")
+
+# ==========================
+# INFO ALPACA BUTTON
+# ==========================
+if show_info:
+    st.markdown("""
+    <div class="result-box" style="max-width:700px; margin:auto;">
+        <h3>🦙 Fakta Singkat tentang Alpaca</h3>
+        <p>
+        Alpaca adalah hewan mamalia dari keluarga unta yang berasal dari Pegunungan Andes, Amerika Selatan 🌄.  
+        Mereka terkenal karena bulunya yang lembut, hangat, dan hipoalergenik — bahkan lebih halus dari wol domba!
+        </p>
+        <p>
+        Alpaca memiliki sifat lembut, cerdas, dan suka berkelompok.  
+        Mereka berkomunikasi menggunakan suara lembut yang disebut “humming”.  
+        Selain itu, alpaca ramah terhadap manusia dan sering digunakan untuk terapi hewan karena karakternya yang tenang 🩵.
+        </p>
+    </div>
     """, unsafe_allow_html=True)
 
 # ==========================
@@ -166,7 +183,7 @@ if uploaded_file:
 # ==========================
 st.markdown("""
 <hr style="margin-top:3rem;">
-<div style="text-align:center; font-size:14px; color:gray;">
+<div style="text-align:center; font-size:14px; color:#333;">
     by <b>@naylarhmdn</b> | <i>Alpaca Vision Project 🦙</i>
 </div>
 """, unsafe_allow_html=True)

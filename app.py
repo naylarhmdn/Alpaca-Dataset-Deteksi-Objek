@@ -6,12 +6,12 @@ import numpy as np
 from PIL import Image
 import cv2
 
-# ==========================
-# CONFIG & STYLE
-# ==========================
+# ==========================================
+# 🦙 CONFIG & STYLE
+# ==========================================
 st.set_page_config(page_title="🦙 Alpaca Vision", page_icon="🧠", layout="wide")
 
-# Custom CSS agar tampilannya lembut dan sidebar teks berwarna hitam
+# 🌈 Custom CSS: Tampilan lembut & sidebar teks hitam
 st.markdown("""
     <style>
     /* Background utama dengan gradasi lembut */
@@ -28,13 +28,13 @@ st.markdown("""
         font-weight: 700;
     }
 
-    /* Sidebar: warna dasar & teks hitam */
+    /* Sidebar */
     section[data-testid="stSidebar"] {
         background-color: #F6EFFF;
         color: black !important;
     }
 
-    /* Kotak hasil */
+    /* Kotak hasil gambar */
     .stImage {
         border-radius: 15px;
         box-shadow: 0px 4px 10px rgba(122, 28, 172, 0.2);
@@ -68,14 +68,13 @@ st.markdown("""
         box-shadow: 0 0 10px rgba(100, 0, 150, 0.1);
     }
 
-    /* Footer */
     footer {visibility: hidden;}
     </style>
 """, unsafe_allow_html=True)
 
-# ==========================
-# Load Models
-# ==========================
+# ==========================================
+# 🧠 Load Models
+# ==========================================
 @st.cache_resource
 def load_models():
     yolo_model = YOLO("model/best.pt")  # Model deteksi objek
@@ -84,37 +83,41 @@ def load_models():
 
 yolo_model, classifier = load_models()
 
-# ==========================
-# UI
-# ==========================
+# ==========================================
+# 🎨 User Interface
+# ==========================================
 st.title("🦙 Alpaca & Non-Alpaca Vision Dashboard")
 
+# Sidebar
 with st.sidebar:
     st.header("✨ Pengaturan Mode")
     menu = st.selectbox("Pilih Mode:", ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"])
     st.markdown("---")
-    st.markdown(
-        """
+    st.markdown("""
         <div style="color:black;">
-            💡 <i>Unggah gambar Alpaca atau NonAlpaca untuk dideteksi atau diklasifikasikan!</i>
+            💡 <i>Unggah gambar Alpaca atau Non-Alpaca untuk dideteksi atau diklasifikasikan!</i>
         </div>
-        """,
-        unsafe_allow_html=True
-    )
+    """, unsafe_allow_html=True)
 
-uploaded_file = st.file_uploader("Klik! Unggah Gambar Disini", type=["jpg", "jpeg", "png"])
+# Upload Gambar
+uploaded_file = st.file_uploader("📤 Klik untuk Unggah Gambar", type=["jpg", "jpeg", "png"])
 
+# ==========================================
+# ⚙️ Proses Deteksi / Klasifikasi
+# ==========================================
 if uploaded_file is not None:
     img = Image.open(uploaded_file)
     col1, col2 = st.columns(2)
 
+    # Kolom kiri: Gambar upload
     with col1:
-        st.subheader("Gambar yang Diupload")
+        st.subheader("🖼️ Gambar yang Diupload")
         st.image(img, use_container_width=True)
 
+    # Kolom kanan: Hasil analisis
     with col2:
         if menu == "Deteksi Objek (YOLO)":
-            st.subheader("Hasil Deteksi Objek")
+            st.subheader("🎯 Hasil Deteksi Objek")
             with st.spinner("Sedang mendeteksi objek... ⏳"):
                 results = yolo_model(img)
                 result_img = results[0].plot()
@@ -125,14 +128,13 @@ if uploaded_file is not None:
             with st.spinner("Sedang menganalisis gambar... 🧠"):
                 img_resized = img.resize((224, 224))
                 img_array = image.img_to_array(img_resized)
-                img_array = np.expand_dims(img_array, axis=0)
-                img_array = img_array / 255.0
+                img_array = np.expand_dims(img_array, axis=0) / 255.0
 
                 prediction = classifier.predict(img_array)
                 class_index = np.argmax(prediction)
                 probability = np.max(prediction)
 
-            # Label sesuai modelmu
+            # Label sesuai model
             labels = ["Non-Alpaca 🐑", "Alpaca 🦙"]
 
             st.markdown(f"""
@@ -142,12 +144,12 @@ if uploaded_file is not None:
             </div>
             """, unsafe_allow_html=True)
 
-# ==========================
-# Footer
-# ==========================
+# ==========================================
+# 🪶 Footer
+# ==========================================
 st.markdown("""
 <hr>
 <div style="text-align:center; font-size:14px; color:gray;">
-by <b>@naylarhmdn</b> | Alpaca Vision Project 🦙
+    by <b>@naylarhmdn</b> | Alpaca Vision Project 🦙
 </div>
 """, unsafe_allow_html=True)

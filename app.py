@@ -137,8 +137,8 @@ if uploaded_file is not None:
 
             st.markdown(f"""
             <div class="result-box">
-                <p>📊 <b>Prediksi:</b> {labels[class_index]}</p>
-                <p>🔥 <b>Probabilitas:</b> {probability:.2%}</p>
+                <p><b>Prediksi:</b> {labels[class_index]}</p>
+                <p><b>Probabilitas:</b> {probability:.2%}</p>
             </div>
             """, unsafe_allow_html=True)
 

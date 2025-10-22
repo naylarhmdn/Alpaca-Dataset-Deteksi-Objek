@@ -102,7 +102,7 @@ with st.sidebar:
         unsafe_allow_html=True
     )
 
-uploaded_file = st.file_uploader("📤 Unggah Gambar", type=["jpg", "jpeg", "png"])
+uploaded_file = st.file_uploader("Klik! Unggah Gambar Disini", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
     img = Image.open(uploaded_file)
@@ -148,6 +148,6 @@ if uploaded_file is not None:
 st.markdown("""
 <hr>
 <div style="text-align:center; font-size:14px; color:gray;">
-by<b>@naylarhmdn</b> | Alpaca Vision Project 🦙
+by <b>@naylarhmdn</b> | Alpaca Vision Project 🦙
 </div>
 """, unsafe_allow_html=True)

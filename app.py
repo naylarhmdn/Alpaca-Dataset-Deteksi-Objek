@@ -1,7 +1,7 @@
 import streamlit as st
-from ultralytics import YOLO
 import tensorflow as tf
 from tensorflow.keras.preprocessing import image
+from ultralytics import YOLO
 import numpy as np
 from PIL import Image
 import base64
@@ -26,7 +26,6 @@ def add_bg_from_local(image_file):
             font-family: 'Poppins', sans-serif;
         }}
 
-        /* Lapisan transparan lembut */
         .main::before {{
             content: "";
             position: absolute;
@@ -43,14 +42,12 @@ def add_bg_from_local(image_file):
             text-shadow: 1px 1px 5px rgba(255,255,255,0.8);
         }}
 
-        /* Sidebar */
         section[data-testid="stSidebar"] {{
             background-color: white !important;
             color: #222 !important;
             border-right: 1.5px solid rgba(0,0,0,0.1);
         }}
 
-        /* Tombol */
         div.stButton > button {{
             background: linear-gradient(90deg, #8E2DE2 0%, #4A00E0 100%);
             color: white;
@@ -85,7 +82,7 @@ def add_bg_from_local(image_file):
     """
     st.markdown(bg_image, unsafe_allow_html=True)
 
-# Ganti path gambar sesuai nama file kamu
+# Ganti sesuai nama file background kamu
 add_bg_from_local("f6391d84-1c14-43f3-8d53-44c8685754d5.png")
 
 # ==========================
@@ -93,8 +90,18 @@ add_bg_from_local("f6391d84-1c14-43f3-8d53-44c8685754d5.png")
 # ==========================
 @st.cache_resource
 def load_models():
-    yolo_model = YOLO("model/best.pt")
-    classifier = tf.keras.models.load_model("model/classifier_model.h5")
+    try:
+        yolo_model = YOLO("model/best.pt")
+    except Exception as e:
+        st.error(f"Gagal memuat model YOLO: {e}")
+        yolo_model = None
+
+    try:
+        classifier = tf.keras.models.load_model("model/classifier_model.h5")
+    except Exception as e:
+        st.error(f"Gagal memuat model klasifikasi: {e}")
+        classifier = None
+
     return yolo_model, classifier
 
 yolo_model, classifier = load_models()
@@ -105,85 +112,4 @@ yolo_model, classifier = load_models()
 st.title("🦙 Alpaca Vision Dashboard")
 
 with st.sidebar:
-    st.header("✨ Pengaturan Mode")
-    menu = st.selectbox("🎯 Pilih Mode:", ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"])
-    st.markdown("---")
-
-    st.markdown("""
-        <div style="color:black; font-size:15px;">
-            💡 <i>Unggah gambar Alpaca atau Non-Alpaca untuk dideteksi atau diklasifikasikan!</i>
-        </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown("---")
-    show_info = st.button("📘 Tentang Alpaca")
-
-# ==========================
-# INFO ALPACA BUTTON
-# ==========================
-if show_info:
-    st.markdown("""
-    <div class="result-box" style="max-width:700px; margin:auto;">
-        <h3>🦙 Fakta Singkat tentang Alpaca</h3>
-        <p>
-        Alpaca adalah hewan mamalia dari keluarga unta yang berasal dari Pegunungan Andes, Amerika Selatan 🌄.  
-        Mereka terkenal karena bulunya yang lembut, hangat, dan hipoalergenik — bahkan lebih halus dari wol domba!
-        </p>
-        <p>
-        Alpaca memiliki sifat lembut, cerdas, dan suka berkelompok.  
-        Mereka berkomunikasi menggunakan suara lembut yang disebut “humming”.  
-        Selain itu, alpaca ramah terhadap manusia dan sering digunakan untuk terapi hewan karena karakternya yang tenang 🩵.
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
-
-# ==========================
-# MAIN CONTENT
-# ==========================
-uploaded_file = st.file_uploader("📤 Unggah Gambar di Sini", type=["jpg", "jpeg", "png"])
-
-if uploaded_file:
-    img = Image.open(uploaded_file)
-    col1, col2 = st.columns(2)
-
-    with col1:
-        st.subheader("📸 Gambar yang Diupload")
-        st.image(img, use_container_width=True)
-
-    with col2:
-        if menu == "Deteksi Objek (YOLO)":
-            st.subheader("🔍 Hasil Deteksi Objek")
-            with st.spinner("Sedang mendeteksi objek... ⏳"):
-                results = yolo_model(img)
-                result_img = results[0].plot()
-            st.image(result_img, caption="Output Deteksi YOLO", use_container_width=True)
-
-        elif menu == "Klasifikasi Gambar":
-            st.subheader("🧠 Hasil Klasifikasi")
-            with st.spinner("Sedang menganalisis gambar..."):
-                img_resized = img.resize((224, 224))
-                img_array = image.img_to_array(img_resized)
-                img_array = np.expand_dims(img_array, axis=0)
-                img_array = img_array / 255.0
-
-                prediction = classifier.predict(img_array)
-                class_index = np.argmax(prediction)
-                probability = np.max(prediction)
-
-            labels = ["Non-Alpaca 🐑", "Alpaca 🦙"]
-            st.markdown(f"""
-            <div class="result-box">
-                <p>📊 <b>Prediksi:</b> {labels[class_index]}</p>
-                <p>🔥 <b>Probabilitas:</b> {probability:.2%}</p>
-            </div>
-            """, unsafe_allow_html=True)
-
-# ==========================
-# FOOTER
-# ==========================
-st.markdown("""
-<hr style="margin-top:3rem;">
-<div style="text-align:center; font-size:14px; color:#333;">
-    by <b>@naylarhmdn</b> | <i>Alpaca Vision Project 🦙</i>
-</div>
-""", unsafe_allow_html=True)
+    st.header("✨

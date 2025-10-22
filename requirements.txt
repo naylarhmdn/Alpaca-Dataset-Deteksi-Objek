@@ -4,3 +4,5 @@ ultralytics
 pillow
 opencv-python-headless
 base64
+image
+numpy

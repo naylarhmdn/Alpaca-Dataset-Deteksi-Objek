@@ -1,5 +1,8 @@
 streamlit
-tensorflow
-ultralytics
+ultralytics==8.0.196
+torch
 pillow
-opencv-python-headless
+opencv-python-headless==4.10.0.84
+numpy
+tensorflow==2.15.0
+

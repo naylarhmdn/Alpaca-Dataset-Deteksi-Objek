@@ -123,17 +123,22 @@ if uploaded_file is not None:
         elif menu == "Klasifikasi Gambar":
             st.subheader("🔎 Hasil Klasifikasi")
             with st.spinner("Sedang menganalisis gambar... 🧠"):
-                img_resized = img.resize((128, 128))
+                img_resized = img.resize((224, 224))
                 img_array = image.img_to_array(img_resized)
                 img_array = np.expand_dims(img_array, axis=0)
                 img_array = img_array / 255.0
 
                 prediction = classifier.predict(img_array)
-                class_index = np.argmax(prediction)
-                probability = np.max(prediction)
+                class_index = int(np.argmax(prediction))
+                probability = float(np.max(prediction))
 
             # Label sesuai modelmu
             labels = ["Non-Alpaca 🐑", "Alpaca 🦙"]
+            # Cegah IndexError jika class_index di luar jangkauan
+            if class_index >= len(labels):
+                pred_label = "Unknown ❓"
+            else:
+                pred_label = labels[class_index]
 
             st.markdown(f"""
             <div class="result-box">

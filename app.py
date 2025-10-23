@@ -121,37 +121,26 @@ if uploaded_file is not None:
             st.image(result_img, caption="Output Deteksi", use_container_width=True)
 
         elif menu == "Klasifikasi Gambar":
-    st.subheader("🔎 Hasil Klasifikasi")
-    with st.spinner("Sedang menganalisis gambar... 🧠"):
-        # Dapatkan ukuran input model otomatis
-        target_size = classifier.input_shape[1:3]
-        if target_size == (None, None):
-            target_size = (128, 128)  # fallback default kalau model tidak punya info
+            st.subheader("🔎 Hasil Klasifikasi")
+            with st.spinner("Sedang menganalisis gambar... 🧠"):
+                img_resized = img.resize((224, 224))
+                img_array = image.img_to_array(img_resized)
+                img_array = np.expand_dims(img_array, axis=0)
+                img_array = img_array / 255.0
 
-        img_resized = img.resize(target_size)
-        img_array = image.img_to_array(img_resized)
-        img_array = np.expand_dims(img_array, axis=0)
-        img_array = img_array / 255.0
+                prediction = classifier.predict(img_array)
+                class_index = np.argmax(prediction)
+                probability = np.max(prediction)
 
-        prediction = classifier.predict(img_array)
-        class_index = int(np.argmax(prediction))
-        probability = float(np.max(prediction))
+            # Label sesuai modelmu
+            labels = ["Non-Alpaca 🐑", "Alpaca 🦙"]
 
-    labels = ["Non-Alpaca 🐑", "Alpaca 🦙"]
-
-    # Cegah error jika class_index diluar jangkauan
-    if class_index >= len(labels):
-        pred_label = "Unknown ❓"
-    else:
-        pred_label = labels[class_index]
-
-    st.markdown(f"""
-    <div class="result-box">
-        <p><b>Prediksi:</b> {pred_label}</p>
-        <p><b>Probabilitas:</b> {probability:.2%}</p>
-    </div>
-    """, unsafe_allow_html=True)
-
+            st.markdown(f"""
+            <div class="result-box">
+                <p>📊 <b>Prediksi:</b> {labels[class_index]}</p>
+                <p>🔥 <b>Probabilitas:</b> {probability:.2%}</p>
+            </div>
+            """, unsafe_allow_html=True)
 
 # ==========================
 # Footer
